@@ -94,12 +94,9 @@ goal of cicd - achieve end to end autoamtion
 
 1. Pre-requisites to starting with Jenkins, follow [Using SSH with GitHub](https://github.com/mthussain1234/test-ssh#using-ssh-with-github)
 2. Make your keys, we had named them `reis-jenkins-key`, and be sure to follow the documentation, also make sure the `app` folders are cloned, as you can see in the contents of this github repository.
+ <b>When adding key to github make sure to check the read and write option.</b>
+ <b>add ssh key also</b>
 3. On Jenkins, click `New Item`.
-<b>
-4. When adding key to github make sure to check the read and write option.
-5. add ssh key also
-</b>
-
 
 ![image](https://user-images.githubusercontent.com/129314018/235678316-948b83c1-5034-4647-afc6-eb37d9e21a99.png)
 
