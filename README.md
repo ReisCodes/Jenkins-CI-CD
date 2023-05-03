@@ -2,4 +2,4 @@
 
 ## Testing the pipeline
 
-## CI testing with tech221 from github jenkins
+## CI testing with tech221 from github jenkins test
