@@ -93,12 +93,15 @@ goal of cicd - achieve end to end autoamtion
 ### Jenkins to GitHub App deployment
 
 1. Pre-requisites to starting with Jenkins, follow [Using SSH with GitHub](https://github.com/mthussain1234/test-ssh#using-ssh-with-github)
-2. Make your keys, we had named them `mohammad-jenkins-key`, and be sure to follow the documentation, also make sure the `app` folders are cloned, as you can see in the contents of this github repository.
+2. Make your keys, we had named them `reis-jenkins-key`, and be sure to follow the documentation, also make sure the `app` folders are cloned, as you can see in the contents of this github repository.
 3. On Jenkins, click `New Item`.
-
+<b>
+4. When adding key to github make sure to check the read and write option.
+5. add ssh key also
+</b>
 ![image](https://user-images.githubusercontent.com/129314018/235678316-948b83c1-5034-4647-afc6-eb37d9e21a99.png)
 
-4. On the next page, enter the name we use `mohammad-CI` similar naming conventions are allowed, and select `freestyle project` and click Ok
+4. On the next page, enter the name we use `reis-CI` similar naming conventions are allowed, and select `freestyle project` and click Ok
 
 ![image](https://user-images.githubusercontent.com/129314018/235678494-d680aede-a141-4cfb-94be-fbec8ba44806.png)
 
@@ -191,7 +194,7 @@ npm test
 
 #### Automating this
 
-1. Make a new job, we call it `mohammad-ci-merge-dev` and we as before create a template from `mohammad-ci-merge` and scroll down to source code management, additional behaviours and do as below. 
+1. Make a new job, we call it `reis-ci-merge-dev` and we as before create a template from `reis-ci-merge` and scroll down to source code management, additional behaviours and do as below. 
 
 ![image](https://user-images.githubusercontent.com/129314018/235922617-a80f8139-a5a1-4582-bbdb-af5410d17680.png)
 
@@ -199,12 +202,12 @@ npm test
 
 ![image](https://user-images.githubusercontent.com/129314018/235922782-0a335a5d-1f90-4ddb-82d7-d04342116821.png)
 
-3. Go to our `mohammad-ci-merge` job, scroll all the way down to post build actions and select post-build actions like below, and select the job we just created.
+3. Go to our `reis-ci-merge` job, scroll all the way down to post build actions and select post-build actions like below, and select the job we just created.
 
 ![image](https://user-images.githubusercontent.com/129314018/235923005-8055aa4b-bb93-4d96-8af7-04fb1e943741.png)
 
 4. Save and we test as before, on GitBash, change code/readme, `git add .` -> `git commit -m "xxx"` -> `git push origin dev`.
-5. once done, it will deploy it on `mohammad-ci-merge` which will update it on the `dev` branch and as we did post build actions, this triggers the `mohammad-ci-merge-dev` job to deploy, this will merge the `dev` branch with the new changes with the `main branch`
+5. once done, it will deploy it on `reis-ci-merge` which will update it on the `dev` branch and as we did post build actions, this triggers the `reis-ci-merge-dev` job to deploy, this will merge the `dev` branch with the new changes with the `main branch`
 6. Test this by checking the repo on GitHub and navigating between both branches, and see if the changes made on the `dev` branch are the same as the `main` branch
 
 
