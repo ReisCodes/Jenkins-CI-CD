@@ -249,5 +249,51 @@ nohup node app.js > /dev/null 2>&1 &
 
 ![image](https://user-images.githubusercontent.com/129314018/235997171-ba85ba80-e607-45e1-b950-3fd6b7b675cc.png)
 
+### Creating Jenkins Pipeline Remotely 
+
+1. We need to create an EC2 with the correct dependencies, that being:
+
+- Ubuntu 18.04lts
+- t2 medium 
+- the SG needs to have ports:
+
+22 - for SSH connection from my IP
+80 - from anywhere
+8080 - from anywhere 
+3000 - from anywhere
+445 - from anywhere for connection with github
+
+Launch this instance.
+
+2. We now need to intall all the dependencies on this instance to be able to host Jenkins within it. 
+```
+sudo apt-get update
+sudo apt-get install default-jdk -y
 
 
+wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+sudo apt-get update
+sudo apt-get install jenkins
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+```
+
+These commands will install java initially which is essential for jenkins, then will install jenkins.
+
+3. Once we have installed jenkins and enabled it we need to allow access to port 8080, we do this with:
+
+```
+sudo ufw allow 8080
+sudo ufw enable
+```
+
+4. We can now access Jenkins with our instance I.P. on port 8080, and will ask for the password from this location:
+
+```
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword # password for jenkins
+```
+
+Once pasting this into our browser, it will then ask you to create an account. follow these steps and continue.
+
+5. Once this is complete it will prompt you on how you would like to customize Jenkins select `Install Suggested Plugins`
