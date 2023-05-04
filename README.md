@@ -1,246 +1,253 @@
-# CI/CD and Jenkins
+# CICD, Jenkins, CDE (git pull local test)
 
-## I Beg this works - test 2 fuck this 
+# testing ci from github with tech221
+
+## What is Jenkins
+
+* Open source automation server, facilitates/helps continuous integration and continuous delivery (CI/CD) pipelines
+* Allows developers to automate building, testing, and deploying software applications
+* CI = merging code from multiple developers in a shared repo multiple times a day, lest them detect integration issues earlier, and reduce time and effort needed to fix
+
+## What other tools available
+
+* GITLAB CI/CD = provide built in cicd capabilities, define and manage piplines directly inside gitlab repo
+* Bamboo = CICD tool by atlassian, robust build, test, deployment automation capabilities
+* GitHub Actions - CICD solution by GITHUB, allows devs to define worklows using YAML to automate sdlc
+
+
+## I Beg this works - test 2 fuck this x 2 
 
 ### Testing CI via dev branch and merging to main. Test_02
 
-## What is CI
+## Jenkins stages
+
+* Source - pipeline retrives source code. checking the code and getting latest updates
+* Build - source code compiled (readable, syntax free), dependencies resolved ( and artefacts generated, convert source code into deployable form eg exec files or libs
+* Test - Various tests executed to ensure quality and functinality of application, eg unit tests, integration tests, and other automated tests
+* Production - After tests, application is deployed to production environment, you prepare the infrastructure, by configuring app and deploying it to environment
+* 
+
+## Difference between continuous delivery (CD) and continuous deployment (CDE)
+
+* CD = Continuous Delivery is an extension of continuous integration to make sure that you can release new changes to your customers quickly in a sustainable way. This means that on top of having automated your testing, you also have automated your release process and you can deploy your application at any point of time by clicking on a button. In continuous Delivery the deployment is completed manually.
+* Continuous Deployment goes one step further than continuous delivery, with this practice, every change that passes all stages of your production pipeline is released to your customers, there is no human intervention, and only a failed test will prevent a new change to be deployed to production.
+
+goal of cicd - achieve end to end autoamtion
+
+![image](https://user-images.githubusercontent.com/129314018/235719214-a2dab7e2-ff88-441d-a7d8-56c17a4180fd.png)
+
+* Local Host - represent local environment (computer)
+* GitHub via SSH - We use SSH to securely connect to GitHub repository
+* Jenkins via SSH - Will connect to the GitHub via SSH, allowing it to fetch code from the repository
+* Jenkins uses GitHub Status API to update status of commit/pull request, can show if deployment was successful or not
+* Jenkins also uses Deployment API to trigger and manage deployments
+* WebHook trigger lets GitHub send notifications to Jenkins when an event happens in the repository, this can be a code push/pull, makes Jenkins perform a build or deployment process, it is like a signal for Jenkins to perform the actions needed depending on what takes place within the repository
+* Master Node = Main jenkins server, Agent Node = computers, eg: EC2 instances
+* Jenkins will use master node to manage and schedule tasks
+* When there is lot of work, master node can share tasks with agent nodes, which perform tasks quickly by working on them simultaneously
+* The link between both master and agent is like master node is distributing tasks to the agent nodes, and they will recieve updates on the progress.
 
-CI - automates the process of merging/commiting the code to master branch. It automatically builds and tests the new code as it's being merged. Helpes to eliminate any errors or security problems on the early stages.
 
-## Difference between CD and CDE
+## CI/CD - Jenkins to GitHub App deployment
 
-CD - works together with CI. After code was tested amd merged, CD packages the software and ensures that it is ready to be deployed into production for a client to use.
+### Pre-requisites
+<details>
+  <summary>[PREREQUISITES TO CLONE APP FOLDERS]</summary>
+  
+  We used the following commands in order to clone someones app folder and environment folder to our local machine
+  which we in turn pushed to this repository.
+  
+  479  git clone https://github.com/khanmaster/sre_jenkins_cicd.git
+  
+  486  cp -R app /c/Users/tahir.LAPTOP-2JTDBK37/Documents/tech_221/CICD_tech221
+  
+  490  cd sre_jenkins_cicd/
+  
+  491  cp -R environment /c/Users/tahir.LAPTOP-2JTDBK37/Documents/tech_221/CICD_tech221
+  
+  495  git add .
+  
+  496  git commit -m "Cloned folders from other repository"
+  
+  497  git push origin main
+  
+  498  git fetch origin
+  
+  499  git merge origin/main
+  
+  500  cd Documents/
+  
+  501  cd tech_221/
+  
+  502  cd CICD_tech221/
+  
+  503  ls
+  
+  504  git status
+  
+  505  git commit -m "first commit"
+  
+  507  git status
+  
+  509  git push
+</details>
 
-CDE - allows the deployment of the app automatically, without the need for human intervention. DevOps sets the criteria for code releases, and when those criterias are met and validated, the code is deployed into the production environment.
 
-Main difference is that in CD the deployment is done manually.
+### Jenkins to GitHub App deployment
 
+1. Pre-requisites to starting with Jenkins, follow [Using SSH with GitHub](https://github.com/mthussain1234/test-ssh#using-ssh-with-github)
+2. Make your keys, we had named them `reis-jenkins-key`, and be sure to follow the documentation, also make sure the `app` folders are cloned, as you can see in the contents of this github repository.
+ <b>When adding key to github make sure to check the read and write option.</b>
+ <b>add ssh key also</b>
+3. On Jenkins, click `New Item`.
 
-## Jenkins and other tools
+![image](https://user-images.githubusercontent.com/129314018/235678316-948b83c1-5034-4647-afc6-eb37d9e21a99.png)
 
-![CI/CD tools](resources/CICD_tools.webp)
+4. On the next page, enter the name we use `reis-CI` similar naming conventions are allowed, and select `freestyle project` and click Ok
 
-Tools for CI/CD pipiline:
+![image](https://user-images.githubusercontent.com/129314018/235678494-d680aede-a141-4cfb-94be-fbec8ba44806.png)
 
-* Jenkins
-* circleci
-* TeamCity
-* Bamboo
-* GitLab
+5. On the next page, do your description as you please, we do it as shown below, select `Discard old builds`, and as shown below check the `Github project` to allow for the use of the app folder as discussed below
+6. On the GitHub repository also shown below, copy the `HTTPS` link of the repo and copy it into the Jenkins `project url`
 
-We will be using Jenkins!
+![image](https://user-images.githubusercontent.com/129314018/235699049-7c83fc8f-8cb6-4b6a-acb5-de1ec5cb4618.png)
 
-Jenkins is an open source automation server in which the central build and CI process take place.
+7. Scrolling down, check the box as shown below, and type `sparta ubuntu node` and click the popup, on the label expression.
 
-![Jenkins diagram](resources/Jenkins_diagram.webp)
+![image](https://user-images.githubusercontent.com/129314018/235699355-d16b50b9-4c53-4e23-9c72-5c3dccc3012b.png)
 
+8. On Source code management click `Git`, and on repository URL, we can see below on the repository we click `Code` then click `ssh` and copy and paste that url in the repository URL.
 
-Benefits of Jenkins:
-* range of plugins
-* easy installation and user-friendly
-* huge community and resources
-* easy environment configuration
+![image](https://user-images.githubusercontent.com/129314018/235699909-30280628-5d2a-4579-8d07-663401c952ea.png)
 
+9. You may be met with an error, if so click the `add` as shown below and click `Jenkins`
 
-## Connect Jenkins to GitHub repo and post a job to test the app
+![image](https://user-images.githubusercontent.com/129314018/235700005-71b70e29-4420-4a4e-ac09-6b71c419f3ed.png)
 
-![CICD diagram](resources/CICD.png)
+10. A pop up should appear, and the ssh keys we created before hand, using GitBash, navigate to `ssh` folder and do `cat <private-key>` and copy the private key.
+11. We then click the SSH dropdown on `Kind` and enter the key-name on Username, so they match
+12. On `private key` click `enter directly` and paste your private key in the box as shown below, and press add.
 
-### Step 1. Create new SSH key
+![image](https://user-images.githubusercontent.com/129314018/235700561-3e5456a1-9277-4583-966f-7a451112aecf.png)
 
-1. Open `GitBash` terminal
-2. `cd .ssh` - navigate into .ssh folder
-3. Create a new key by using `sss-keygen -t rsa -b 4096 -C "olegfursa93@hotmail.com"
-4. Type the name, for example `oleg_jenkins_key`, and then press `Enter` twice to skip the password set up
-5. Now if you use `ls` you should be able to see new keys created
+13. On branches to build, change `master` to `main` as that is the branch we are using
 
-### Step 2. Add public key to GitHub repo
-1. Create a new repo on GitHub, or open an excisting repo with `Sparta App`
-2. Go in to project settings:
+![image](https://user-images.githubusercontent.com/129314018/235702105-133d4640-edde-4ede-845a-13e4414f9e6d.png)
 
-![Project Settings](resources/project_settings.JPG)
+14. On Build environment, check the `provide node & npm ...` as shown below
 
-3. On the left panel search for `Deploy keys`
-4. Click on `Add deploy key`
-5. Name your new key
-6. In bash terminal, inside the `.ssh` folder, use `cat oleg_jenkins_key.pub` in order to display the content of the public key
-7. Copy the public key and paste it inside your `Deploy key` on GitHub
-8. Save the key
+![image](https://user-images.githubusercontent.com/129314018/235702267-97a23956-71c9-4517-90d2-d43933c4894d.png)
 
+15. Scrolling down, `add build step` then click execute shell.
 
-### Step 3. Create a job on Jenkins
+![image](https://user-images.githubusercontent.com/129314018/235702442-b3d41f78-436e-4449-bb11-99f7c14f81ee.png)
 
-1. Log in to Jenkins account
-2. Click on `New Item` to create a new job:
+16. In `execute shell` enter (and save after) : 
+```
+cd app
+npm install
+npm test
+```
 
-![New job jenkins](resources/jenkins_new_item.JPG)
+17. Click `Build now` and wait for the build history to update, when the new build shows up, click the dropdown as shown below, and click `console output`
 
-3. Give a name to the job, select `Freestyle project` and click `OK`:
+![image](https://user-images.githubusercontent.com/129314018/235704026-6c4ccbd1-c692-41eb-9598-e9ebcde7a55e.png)
 
-![New task name jenkins](resources/jenkins_name_new_job.JPG)
+18. After clicking `console output` we can scroll down to see checks passed, and we can see what it can look like for a succesful test, shown below.
 
-4. Set up general settings:
+![image](https://user-images.githubusercontent.com/129314018/235704124-d9a22683-5a16-49d1-9cc3-f62c245a0076.png)
 
-    ![General settings jenkins](resources/jenkins_general_settings.JPG)
+### Webhook creation
 
-    * `Description` - write a short description of the job
-    * `Discard old builds` - set `Max # of builds to keep` to `3`, meaning it will only keep 3 copies of the same job once built, and delete the older once
-    * `GitHub project` - copy an `https` link from your GitHub project
+1. Create webhook for Jenkins/endpoint
+2. create a webhook in github for repo where we have app code
+3. test webhook - testing status code 200
+4. make change to github readme and commit change
 
-5. Set up Office 365 Connector:
+![image](https://user-images.githubusercontent.com/129314018/235880570-4303e7c6-faed-4df1-bdd8-ee3a5bbecd2e.png)
 
-    ![Office 365 connector jenkins](resources/jenkins_office365_connector.JPG)
+![image](https://user-images.githubusercontent.com/129314018/235880905-2b521219-6731-44aa-9d15-f685e2f00783.png)
 
-    * Select `Restrict where this project can be run` and type `sparta-ubuntu-node`, meaning it will create a new node outside of master node in order to run the job
+- save after checking box as shown below
 
-6. Set up Source code management:
+![image](https://user-images.githubusercontent.com/129314018/235882064-94742946-8745-4acc-8865-1d9d624a4c55.png)
 
-    ![Source code management jenkins](resources/jenkins_source-code_manager.JPG)
+### On local machine - Jenkins 
 
-    Here we establish connection with GitHub, as thats where our code will be managed:
+1. On GitBash, we navigate to our directory linked to repo.
+2. `git pull` to pull changes from the GitHub changes we made earlier
+3. `nano README.md` make some changes to test it
+4. `git add .` then `git commit -m "xxxx"` then `git push` to push it to the GitHub
+5. Check Jenkins after pushing the new changes, and it should show you a new build being deployed as shown below.
 
-    * Select `Git`
-    * In `Repository URL` copy an `ssh` link from your GitHub project
-    * In `Credentials` select the key. If you don't have a key created yet, click on `Add` and then `Jenkins`:
+![image](https://user-images.githubusercontent.com/129314018/235890506-64845f78-e9dc-4166-84db-cd6e5df40586.png)
 
-        ![Credential provider jenkins](resources/jenkins_credential_provider.JPG)
+### TAS - MERGE - NEW BRANCH - JENKINS
 
-            1. In `Kind` select `SSH Username with private key`
-            2. In `username` enter your key name
-            3. In `Private key` select `Enter directly`
-            4. Click on `Add`
-            5. In bash terminal, use `cat oleg_jenkins_key` in order to display the content of your private key
-            6. Copy all of the content from the key
-            7. Paste the content into Jenkins
-            8. Click `Add`
-    * In `Branches to build` change it to `main`
+1. Create new job called mohammad-ci-merge, we do this by selecting our old mohammad-ci template
+2. create dev branch on local host and make change to readme
+3. we do this by `git branch dev` then `git checkout dev`
+4. push to github which should trigger job
+5. if test passed, merge code to main branch
+6. we now switch to our target branch which is `main` by `git checkout main`
+7. We then `git merge dev` which should merge our dev branch into the main branch
+8. `git add .` then `git commit -m "xxxx"` then `git push origin main` and it should push the new merged branch, and we can test this by checking Jenkins, and it should show a new build being deployed.
+9. Like before, it should show the updated code/readme on your GitHub
 
-7. Set up Build Environment:
+#### Automating this
 
-    ![Build Environment jenkins](resources/jenkins_build_environment.JPG)
+1. Make a new job, we call it `reis-ci-merge-dev` and we as before create a template from `reis-ci-merge` and scroll down to source code management, additional behaviours and do as below. 
 
-    * Select `Provide Node & npm bin/folder to Path`
-    * In `NodeJS Installation` select `Sparta-Node-JS` 
+![image](https://user-images.githubusercontent.com/129314018/235922617-a80f8139-a5a1-4582-bbdb-af5410d17680.png)
 
-8. Set up Build:
+2. On post build actions select git publisher, and select as shown below.
 
-    ![Build jenkins](resources/jenkins_build.JPG)
+![image](https://user-images.githubusercontent.com/129314018/235922782-0a335a5d-1f90-4ddb-82d7-d04342116821.png)
 
-    * Click on `Add build step`
-    * Select `shell script`
-    * Add following commands:
-    ```
-    cd app
-    npm install
-    npm test
-    ```
+3. Go to our `reis-ci-merge` job, scroll all the way down to post build actions and select post-build actions like below, and select the job we just created.
 
-9. Post-build Actions (Optional):
-    * Here you can add an action to be executed after this job is finished, for example start another job if this one was successful
+![image](https://user-images.githubusercontent.com/129314018/235923005-8055aa4b-bb93-4d96-8af7-04fb1e943741.png)
 
-10. Click on `Save`
+4. Save and we test as before, on GitBash, change code/readme, `git add .` -> `git commit -m "xxx"` -> `git push origin dev`.
+5. once done, it will deploy it on `reis-ci-merge` which will update it on the `dev` branch and as we did post build actions, this triggers the `reis-ci-merge-dev` job to deploy, this will merge the `dev` branch with the new changes with the `main branch`
+6. Test this by checking the repo on GitHub and navigating between both branches, and see if the changes made on the `dev` branch are the same as the `main` branch
 
-### Step 4. Run the project
 
-1. Once job is created, click on `Build Now` in order to run the job:
+## create 3rd job to push code to production
 
-    ![Build project jenkins](resources/jenkins_job_created.JPG)
+1. Launch instance from previous AMIs, we use our app AMI `ami-06042513c73c0c668`, and configure security groups as shown below 
 
-2. In `Build History` you can see the status of the project:
+![image](https://user-images.githubusercontent.com/129314018/235996432-b02016e9-74fb-4c81-95d5-5edb8308f906.png)
 
-    ![Build History jenkins](resources/jenkins_build_history.JPG)
+2. Launch Instance
 
-    * It will show you the time when it was built
-    * There is a sphere that shows the status of the job:
-        * red - there is an error
-        * grey - pending/executing
-        * blue - completed successfully
 
-3. If you click on the sphere you can see the console output:
+3. Create a new job to deploy our sparta app we use `reis-sparta-app`
+4. Configure the job as seen in the screenshots below in order
 
-    ![Console output jenkins](resources/jenkins_console_output.JPG)
+![image](https://user-images.githubusercontent.com/129314018/235975825-dc766cd1-286d-4d04-8bd0-70f0e482238e.png)
+![image](https://user-images.githubusercontent.com/129314018/235975895-b99b6813-2f29-4127-8f31-1c7606c1d777.png)
+![image](https://user-images.githubusercontent.com/129314018/235975976-aa5775be-9955-4d2f-b63f-b9b56ec5b7ce.png)
+![image](https://user-images.githubusercontent.com/129314018/235976048-bb3fc050-3fa3-4403-86fa-582337ba1a0d.png)
 
+5. As seen above, in the execute shell enter these commands changing the `ip` to your Public ipv4 addres found on 
+EC2 instance.
 
+```
+scp -v -r -o StrictHostKeyChecking=no app/ ubuntu@<my-ip>:/home/ubuntu/
+ssh -A -o StrictHostKeyChecking=no ubuntu@<my-ip> <<EOF
+#sudo apt install clear#
 
+cd app
 
-## Creating a webhook trigger
+#sudo npm install pm2 -g
+# pm2 kill
+nohup node app.js > /dev/null 2>&1 &
+```
+6. Save changes and build to test the deployment of the app
+7. Type public ip with `:3000` at the end to see if the app has deployed
 
-1. Open your GitHub project
-2. Go into project `Settings`
-3. In the settings search for `Webhooks`
-4. Click `Add webhook`
-5. In the webhook settings:
-    * Payload URL - copy Jenkins url
-    * Content type - chose `application/json`
-    * Select `Just the push event`
-    * Click on `Add webhook`
-6. Go to Jenkins
-7. Open your task configuration
-8. In Build triggers select `GitHub hook trigger for GITScm polling`:
+![image](https://user-images.githubusercontent.com/129314018/235997171-ba85ba80-e607-45e1-b950-3fd6b7b675cc.png)
 
-    ![Build trigger jenkins](resources/jenkins_build_trigger.JPG)
-9. Now, if you push the changes to your GitHub it should automatically trigger the test on Jenkins
 
-
-## Automating CI pipeline
-
-### Step 1. Create a new branch on GitHub
-
-1. Open your Project in VS code
-2. In the Git terminal type `git branch dev` to create a dev branch
-3. Use `git checkout dev` to switch to `dev` branch by default
-4. Now, use `git push -u origin dev` to push your changes to dev branch
-
-### Step 2. Create a job to test a code from dev branch
-
-1. Go to your Jenkins
-2. Create a new task. As it will be identical to the previous task we've created we could use that as a template to copy settings from it
-3. In `Source Code Management` change `Branches to build` to `dev`:
-
-    ![Dev branch source](resources/jenkins_source_dev.JPG)
-
-4. The rest you can leave as it is. Click `Save`
-5. Use `Build Now` in order to test the job manually
-
-### Step 3. Merge dev branch with main branch
-
-1. Create a new task on Jenkins
-2. In `General`:
-
-    ![Merge task general settings](resources/jenkins_merge_general.JPG)
-
-    * Write a description
-    * Set `Discard old builds` to 3
-    * `GitHub Project` copy https link to your project and paste it there
-
-3. In `Source Code management` copy the settings from the previous task. Then click on `Add` in Additional Behaviours and select `Merge before build`:
-
-    ![Merge before build settings](resources/jenkins_merge_source_management.JPG)
-
-    * `Name of repository` - set to `origin`
-    * `Branch to merge to` - set to `main`
-    * Rest leave to default
-
-4. In `Post-build Action` click on `Add` and select `Git Publisher`:
-
-    ![Git Publisher settings](resources/jenkins_merge_postbuild.JPG)
-
-    * Enable `Push only if build successful`
-    * Enable `Merge Results`
-
-5. Click on save
-6. Use `Build Now` in order to test the job manually
-
-### Step 4. Trigger merge job if test is successful
-
-1. Go back to your `CI` job configuration
-2. Scroll down to `Post-build actions` and add `Build other projects`
-3. In `projects to build` type the name of the project you want to run, for example `oleg_ci_merge`
-
-    ![Post-build action to trigger merge](resources/jenkins_postbuild_action.JPG)
-
-
-4. Save your project
-5. Now, to test if it works, push some changes form your local repo and it should trigger the test first, and if the test is successful it will then merge the changes from dev branch to main branch and push the changes to your GitHub
 
