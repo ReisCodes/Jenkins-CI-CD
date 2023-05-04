@@ -210,10 +210,41 @@ npm test
 6. Test this by checking the repo on GitHub and navigating between both branches, and see if the changes made on the `dev` branch are the same as the `main` branch
 
 
+## create 3rd job to push code to production
 
-- create 3rd job to push code to production
+1. Launch instance from previous AMIs, we use our app AMI `ami-06042513c73c0c668`, and configure security groups as shown below 
 
-- create ec2 instance
-- create sg rule to allow jenkins ip
-- on build env on jenkins, provide node check, ssh agent, check and pick corresponding pem file
-- scp function, cd app, npm install npm test npm start
+![image](https://user-images.githubusercontent.com/129314018/235996432-b02016e9-74fb-4c81-95d5-5edb8308f906.png)
+
+2. Launch Instance
+
+
+3. Create a new job to deploy our sparta app we use `reis-sparta-app`
+4. Configure the job as seen in the screenshots below in order
+
+![image](https://user-images.githubusercontent.com/129314018/235975825-dc766cd1-286d-4d04-8bd0-70f0e482238e.png)
+![image](https://user-images.githubusercontent.com/129314018/235975895-b99b6813-2f29-4127-8f31-1c7606c1d777.png)
+![image](https://user-images.githubusercontent.com/129314018/235975976-aa5775be-9955-4d2f-b63f-b9b56ec5b7ce.png)
+![image](https://user-images.githubusercontent.com/129314018/235976048-bb3fc050-3fa3-4403-86fa-582337ba1a0d.png)
+
+5. As seen above, in the execute shell enter these commands changing the `ip` to your Public ipv4 addres found on 
+EC2 instance.
+
+```
+scp -v -r -o StrictHostKeyChecking=no app/ ubuntu@<my-ip>:/home/ubuntu/
+ssh -A -o StrictHostKeyChecking=no ubuntu@<my-ip> <<EOF
+#sudo apt install clear#
+
+cd app
+
+#sudo npm install pm2 -g
+# pm2 kill
+nohup node app.js > /dev/null 2>&1 &
+```
+6. Save changes and build to test the deployment of the app
+7. Type public ip with `:3000` at the end to see if the app has deployed
+
+![image](https://user-images.githubusercontent.com/129314018/235997171-ba85ba80-e607-45e1-b950-3fd6b7b675cc.png)
+
+
+
