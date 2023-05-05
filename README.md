@@ -258,9 +258,13 @@ nohup node app.js > /dev/null 2>&1 &
 - the SG needs to have ports:
 
 22 - for SSH connection from my IP
+
 80 - from anywhere
+
 8080 - from anywhere 
+
 3000 - from anywhere
+
 445 - from anywhere for connection with github
 
 Launch this instance.
