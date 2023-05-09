@@ -14,8 +14,6 @@
 * Bamboo = CICD tool by atlassian, robust build, test, deployment automation capabilities
 * GitHub Actions - CICD solution by GITHUB, allows devs to define worklows using YAML to automate sdlc
 
-### Testing CI via dev branch and merging to main. Test_02
-
 ## Jenkins stages
 
 * Source - pipeline retrives source code. checking the code and getting latest updates
